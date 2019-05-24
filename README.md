@@ -1,4 +1,4 @@
-# azure-iot-redis-edge
+# RedisEdge Azure IoT Edge
 
 In Azure IoT Edge speak, this is a solution that consists of a single module: the RedisEdge module.
 
