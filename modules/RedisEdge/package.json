@@ -1,0 +1,15 @@
+{
+  "name": "redis-edge",
+  "description": "RedisEdge for Azure IoT Edge",
+  "version": "1.0.0",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Redislabs-Solution-Architects/azure-iot-redis"
+  },
+  "dependencies": {
+    "azure-iot-device": "1.7.3",
+    "azure-iot-device-mqtt": "1.7.3",
+    "bluebird": "3.5.0"
+  }
+}

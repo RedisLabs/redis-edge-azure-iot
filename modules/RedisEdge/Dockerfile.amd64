@@ -1,0 +1,38 @@
+FROM redislabs/redistieximeseries:0.2.0 as redistimeseries
+FROM redisai/redisai:0.1.0 as redisai
+
+FROM redis:5.0.3 as redis
+
+ENV SRC_LIB_PATH /usr/lib/redis/modules
+ENV DST_LIB_PATH /usr/local/lib/redis/modules
+ENV LD_LIBRARY_PATH ${DST_LIB_PATH}
+
+WORKDIR ${DST_LIB_PATH}
+COPY --from=redistimeseries ${SRC_LIB_PATH}/*.so* ${DST_LIB_PATH}/
+COPY --from=redisai ${SRC_LIB_PATH}/*.so* ${DST_LIB_PATH}/
+
+ENV OSPACKAGES=amd64-packages.txt
+
+WORKDIR /dep
+COPY ${OSPACKAGES} /dep
+
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends $(cat ${OSPACKAGES})
+
+RUN wget -q -O nodesource_setup.sh https://deb.nodesource.com/setup_8.x && \
+    bash nodesource_setup.sh
+RUN apt-get install -y --no-install-recommends nodejs
+WORKDIR /
+RUN rm -rf /var/lib/apt/lists/*
+RUN rm -rf /dep
+
+WORKDIR /module
+COPY package.json /module
+COPY edge-hooks.js /module
+RUN npm install --production
+
+WORKDIR /data
+
+COPY module-entrypoint.sh /usr/local/bin/
+EXPOSE 6379
+ENTRYPOINT ["module-entrypoint.sh"]

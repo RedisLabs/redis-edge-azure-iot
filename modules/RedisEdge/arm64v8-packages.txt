@@ -1,0 +1,5 @@
+gnupg 
+ca-certificates
+tzdata
+wget
+

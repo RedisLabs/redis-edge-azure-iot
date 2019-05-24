@@ -1,0 +1,34 @@
+FROM arm32v7/redis:5.0.2 as redis
+##FROM debian:stretch-slim
+
+##COPY --from=redis /usr/local/bin/redis-* /usr/local/bin/
+
+ENV OSPACKAGES=arm32v7-packages.txt
+
+WORKDIR /dep
+COPY ${OSPACKAGES} /dep
+
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends $(cat ${OSPACKAGES})
+
+RUN wget -q -O nodesource_setup.sh https://deb.nodesource.com/setup_8.x && \
+    bash nodesource_setup.sh
+
+RUN apt-get install -y --no-install-recommends nodejs
+
+RUN rm -rf /var/lib/apt/lists/*
+
+WORKDIR /
+RUN rm -rf /dep
+
+WORKDIR /module
+COPY package.json /module
+COPY edge-hooks.js /module
+RUN npm install --production
+
+WORKDIR /data
+
+COPY module-entrypoint.sh /usr/local/bin/
+
+EXPOSE 6379
+ENTRYPOINT ["module-entrypoint.sh"]
